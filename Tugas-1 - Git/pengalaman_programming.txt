@@ -1,0 +1,4 @@
+#1 pengalaman pertama saya adalah membuat website wordpress untuk klien
+#2 membuat website inventory PT KAI menggunakan laravel dimana saya diajak sebagai junior programmer oleh senior saya.
+#3 kerjaan kantor: membantu transformasi data dari sql server ke mongodb menggunakan php
+#4 kerjaan kantor: membantu desain bagian frontend menggunakan vue js
