@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+      <input type="text" v-on:keyup.enter='submit' v-model='dataCreate'>
+      <ul v-for="(item, index) in posts">
+          <button @click=add(index)>+</button>
+          <li>{{item}}</li>
+          <button @click=subtract(index)>-</button>
+      </ul>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script>
+   var vm = new Vue({
+      el: '#app',
+      data: {
+          dataCreate: '',
+          posts: [
+              {name: "Comment 1", date: "12/02/2021", score: 4},
+              {name: "Comment 2", date: "13/02/2021", score: 5},
+              {name: "Comment 3", date: "14/02/2021", score: 0},
+          ],
+          numberClick: 0
+      },
+      methods : {
+          add(param) {
+            this.numberClick++
+            this.numberClick % 2 == 0 ? this.posts[param].score -= 1 : this.posts[param].score += 1
+            console.log('banyak klik ' + this.numberClick)
+          },
+          subtract(param) {
+            this.numberClick++
+            this.numberClick % 2 == 0 ? this.posts[param].score += 1 : this.posts[param].score -= 1
+            console.log('banyak klik ' + this.numberClick)
+
+          },
+          submit() {
+              let tempDate = new Date()
+              var tempData = {name: this.dataCreate, date: tempDate.toLocaleDateString(), score: 0}
+              this.posts.push(tempData) 
+              this.dataCreate = ''
+          }
+      }
+  })
+  </script>
+</body>
+</html>
