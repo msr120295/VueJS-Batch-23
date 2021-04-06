@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <input type="text" v-model="form.name"/>
+    <input type="text" v-model="form.address"/>
+    <input type="text" v-model="form.no_hp"/>
+    <input v-if='isEdit ==="uploadPh"' type="file" name="photo" ref="photo">
+    <button @click='submitform'>{{isEdit === 'create' ? "Submit" : "Edit"}}</button>
+    <br><br>
+    <table>
+      <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>address</th>
+        <th>no hp</th>
+        <th>photos</th>
+        <th>Aksi</th>
+      </tr>
+      <tr v-for="(item, index) of members">
+        <td>{{item.id}}</td>
+        <td>{{item.name}}</td>
+        <td>{{item.address}}</td>
+        <td>{{item.no_hp}}</td>
+        <td>{{item.photo_profile}}</td>
+        <td>
+          <button @click='viewMember(item.id)'>View</button>
+          <button @click='editMember(item.id)'>Edit</button>
+          <button @click='deleteMember(item.id)'>Delete</button>
+          <button @click='uploadPhoto(item.id)'>Upload</button>
+        </td>
+      </tr>
+    </table>
+    <br><br>
+    <div v-if='dialog === true'>
+      <button @click='closeModal'>Close</button>
+      <ul v-for="(item, name) in membersId">
+        <li>{{name}} : {{item}}</li>
+      </ul>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        members: [],
+        form: {
+          name: null,
+          address: null,
+          no_hp: null,
+        },
+        dialog: false,
+        membersId: null,
+        isEdit: 'create'
+        
+      },
+      methods : {
+        getAllMembers() {
+          axios.get('http://demo-api-vue.sanbercloud.com/api/member').then(res =>{
+            this.members = res.data.members
+          }).catch(e =>
+          {throw e})
+        },
+        submitform() {
+          if(this.isEdit === 'create') {          
+            axios.post('http://demo-api-vue.sanbercloud.com/api/member', this.form).then(res => {
+            this.form.name = '',
+            this.form.address = '',
+            this.form.no_hp = ''
+            return res;
+          }).catch(e => {throw e})
+          } else if(this.isEdit === 'edit') {
+            axios.put(`http://demo-api-vue.sanbercloud.com/api/member/${this.form.id}?_method=PUT`, this.form).then(res => {
+            this.form.name = '',
+            this.form.address = '',
+            this.form.no_hp = ''
+            this.isEdit = 'create'
+            return res;
+          }).catch(e => {throw e})
+          } else if(this.isEdit === 'uploadPh') {
+            let file = this.$refs.photo.files[0]
+            let formData = new FormData()
+            formData.append('photo_profile', file)
+
+            axios.post(`http://demo-api-vue.sanbercloud.com/api/member/${this.form.id}/upload-photo-profile`, formData).then(res => {
+            this.form.name = '',
+            this.form.address = '',
+            this.form.no_hp = ''
+            this.isEdit = 'create'
+            alert(res.data.message)
+            return res;
+          }).catch(e => {throw e})
+          }
+        },
+        viewMember(id) {
+          this.dialog = true
+          axios.get(`http://demo-api-vue.sanbercloud.com/api/member/${id}`).then(res =>{
+            this.membersId = res.data.member
+          }).catch(e =>
+          {throw e})
+        },
+        deleteMember(id) {
+          axios.post(`http://demo-api-vue.sanbercloud.com/api/member/${id}?_method=DELETE`).then(
+            alert('member berhasil dihapus')
+          ).catch(e =>
+          {throw e})
+        },
+        editMember(id) {
+          this.isEdit = 'edit'
+          axios.get(`http://demo-api-vue.sanbercloud.com/api/member/${id}`).then(res =>{
+            this.form = res.data.member
+          }).catch(e =>
+          {throw e})
+        },
+        closeModal() {
+          this.dialog = false
+        },
+        uploadPhoto(id) {
+          this.isEdit = 'uploadPh'
+          axios.get(`http://demo-api-vue.sanbercloud.com/api/member/${id}`).then(res =>{
+            this.form = res.data.member
+          }).catch(e =>
+          {throw e})
+        }
+      },
+      created() {
+        this.getAllMembers()
+      },
+      updated() {
+        this.getAllMembers()
+      }
+    })
+  </script>
+  
+  <style scoped>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+    
+  </style>
+</body>
+</html>
